@@ -9,6 +9,7 @@ data "aws_subnets" "default" {
   }
 }
 
+# ECS Security Group
 resource "aws_security_group" "ecs" {
   name        = "task-9-ecs-sg"
   description = "Allow HTTP traffic"
@@ -29,10 +30,12 @@ resource "aws_security_group" "ecs" {
   }
 }
 
+# ECS Cluster
 resource "aws_ecs_cluster" "main" {
   name = "task-9-cluster"
 }
 
+# ECS Task Definition
 resource "aws_ecs_task_definition" "my_strapi_app" {
   family                   = "task-9-my-strapi-app"
   requires_compatibilities = ["FARGATE"]
@@ -51,10 +54,54 @@ resource "aws_ecs_task_definition" "my_strapi_app" {
         containerPort = 1337
         hostPort      = 1337
       }]
+
+      environment = [
+        {
+          name  = "DATABASE_CLIENT"
+          value = "mysql"
+        },
+        {
+          name  = "DATABASE_HOST"
+          value = aws_db_instance.strapi.address
+        },
+        {
+          name  = "DATABASE_PORT"
+          value = "3306"
+        },
+        {
+          name  = "DATABASE_NAME"
+          value = "strapi"
+        },
+        {
+          name  = "DATABASE_USERNAME"
+          value = "admin"
+        },
+        {
+          name  = "DATABASE_PASSWORD"
+          value = "StrapiPassword123!"
+        },
+        {
+          name  = "APP_KEYS"
+          value = "randomkey123456"
+        },
+        {
+          name  = "API_TOKEN_SALT"
+          value = "randomsalt123"
+        },
+        {
+          name  = "ADMIN_JWT_SECRET"
+          value = "adminjwt123"
+        },
+        {
+          name  = "JWT_SECRET"
+          value = "jwtsecret123"
+        }
+      ]
     }
   ])
 }
 
+# ECS Service
 resource "aws_ecs_service" "my_strapi_service" {
   name            = "task-9-service"
   cluster         = aws_ecs_cluster.main.id

@@ -1,3 +1,34 @@
+data "aws_vpc" "default" {
+  default = true
+}
+
+data "aws_subnets" "default" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.default.id]
+  }
+}
+
+resource "aws_security_group" "ecs" {
+  name        = "task-9-ecs-sg"
+  description = "Allow HTTP traffic"
+  vpc_id      = data.aws_vpc.default.id
+
+  ingress {
+    from_port   = 1337
+    to_port     = 1337
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
 resource "aws_ecs_cluster" "main" {
   name = "task-9-cluster"
 }
@@ -36,16 +67,8 @@ resource "aws_ecs_service" "my_strapi_service" {
   }
 
   network_configuration {
-    subnets          = aws_subnet.public[*].id
+    subnets          = data.aws_subnets.default.ids
     security_groups  = [aws_security_group.ecs.id]
     assign_public_ip = true
   }
-
-  load_balancer {
-    target_group_arn = aws_lb_target_group.strapi.arn
-    container_name   = "my-strapi-app"
-    container_port   = 1337
-  }
-
-  depends_on = [aws_lb_listener.http]
 }

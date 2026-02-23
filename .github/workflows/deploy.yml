@@ -22,9 +22,8 @@ jobs:
 
       - name: Build & Push Docker
         run: |
-          docker build -t my-strapi-app ./my-strapi-app
-          docker tag my-strapi-app:latest ${{ secrets.ECR_REPO }}:latest
-          docker push ${{ secrets.ECR_REPO }}:latest
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
 
       - name: Terraform Deploy
         working-directory: terraform

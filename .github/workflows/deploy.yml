@@ -10,22 +10,36 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      # Checkout Code
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-      - uses: aws-actions/configure-aws-credentials@v2
+      # Configure AWS Credentials
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-south-1
 
-      - uses: aws-actions/amazon-ecr-login@v1
+      # Login to Amazon ECR
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v1
 
+      # Build & Push Docker Image
       - name: Build & Push Docker
         working-directory: my-strapi-app
         run: |
           docker build -t ${{ secrets.ECR_REPO }}:latest .
           docker push ${{ secrets.ECR_REPO }}:latest
 
+      # ✅ Install Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.6
+
+      # Terraform Init & Apply
       - name: Terraform Deploy
         working-directory: terraform
         run: |

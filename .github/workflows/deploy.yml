@@ -22,8 +22,8 @@ jobs:
 
       - name: Build & Push Docker
         run: |
-          docker build -t ${{ secrets.ECR_REPO }}:latest .
-           docker push ${{ secrets.ECR_REPO }}:latest
+          docker build -t ${{ secrets.ECR_REPO }}:latest -f app/Dockerfile .
+          docker push ${{ secrets.ECR_REPO }}:latest
 
       - name: Terraform Deploy
         working-directory: terraform

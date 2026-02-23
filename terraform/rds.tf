@@ -35,7 +35,7 @@ resource "aws_db_instance" "strapi" {
   username                = "admin"
   password                = "StrapiPassword123!"
   skip_final_snapshot     = true
-  publicly_accessible     = false
+  publicly_accessible     = true
 
   vpc_security_group_ids  = [aws_security_group.rds.id]
   db_subnet_group_name    = aws_db_subnet_group.rds_subnet.name

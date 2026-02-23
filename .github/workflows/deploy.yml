@@ -21,8 +21,9 @@ jobs:
       - uses: aws-actions/amazon-ecr-login@v1
 
       - name: Build & Push Docker
+        working-directory: my-strapi-app
         run: |
-          docker build -t ${{ secrets.ECR_REPO }}:latest -f app/Dockerfile .
+          docker build -t ${{ secrets.ECR_REPO }}:latest .
           docker push ${{ secrets.ECR_REPO }}:latest
 
       - name: Terraform Deploy
